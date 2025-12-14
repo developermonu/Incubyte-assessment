@@ -615,11 +615,12 @@ const Dashboard = ({ role, showToast }) => {
         <div className={viewMode === 'grid' ? 'sweets-grid' : 'sweets-list'}>
           {sortSweets(sweets).map((sweet) => (
             <div key={sweet.id} className="sweet-card">
-              {sweet.image_url && (
-                <div className="sweet-image">
-                  <img src={sweet.image_url} alt={sweet.name} />
-                </div>
-              )}
+              <div className="sweet-image">
+                <img 
+                  src={sweet.image_url || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f0f0f0' width='200' height='200'/%3E%3Ctext x='50%25' y='45%25' font-size='48' text-anchor='middle' fill='%23cccccc'%3E🍬%3C/text%3E%3Ctext x='50%25' y='65%25' font-size='14' text-anchor='middle' fill='%23999999'%3ENo Image%3C/text%3E%3C/svg%3E"} 
+                  alt={sweet.name} 
+                />
+              </div>
               <div className="sweet-header">
                 <h3 className="sweet-name">{sweet.name}</h3>
                 <span className="sweet-category">{sweet.category}</span>
