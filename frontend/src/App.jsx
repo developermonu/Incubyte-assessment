@@ -239,6 +239,9 @@ const Dashboard = ({ role, showToast }) => {
   const [restockDialog, setRestockDialog] = useState({ isOpen: false, sweet: null, quantity: 5 });
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('name-asc');
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
+  const [importData, setImportData] = useState([]);
+  const [isImporting, setIsImporting] = useState(false);
 
   const fetchSweets = async () => {
     setLoading(true);
@@ -278,6 +281,81 @@ const Dashboard = ({ role, showToast }) => {
       default:
         return sorted;
     }
+  };
+
+  const exportToCSV = () => {
+    const csvHeader = 'Name,Category,Price,Quantity\n';
+    const csvRows = sweets.map(sweet => 
+      `${sweet.name},${sweet.category},${sweet.price},${sweet.quantity}`
+    ).join('\n');
+    const csvContent = csvHeader + csvRows;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `sweets_export_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    showToast('Sweets exported successfully!', 'success');
+  };
+
+  const downloadSampleCSV = () => {
+    const sampleData = 'Name,Category,Price,Quantity\nSample Sweet,Traditional,500,10\nAnother Sweet,Modern,300,20';
+    const blob = new Blob([sampleData], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'sample_import_format.csv';
+    link.click();
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      const rows = text.split('\n').filter(row => row.trim());
+      const headers = rows[0].split(',');
+      
+      const data = rows.slice(1).map(row => {
+        const values = row.split(',');
+        return {
+          name: values[0]?.trim(),
+          category: values[1]?.trim(),
+          price: parseFloat(values[2]) || 0,
+          quantity: parseInt(values[3]) || 0
+        };
+      }).filter(item => item.name && item.category);
+      
+      setImportData(data);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleBulkImport = async () => {
+    if (importData.length === 0) {
+      showToast('No data to import', 'error');
+      return;
+    }
+
+    setIsImporting(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const item of importData) {
+      try {
+        await api.post('/api/sweets', item);
+        successCount++;
+      } catch (err) {
+        failCount++;
+        console.error(`Failed to import ${item.name}:`, err);
+      }
+    }
+
+    setIsImporting(false);
+    setIsBulkImportOpen(false);
+    setImportData([]);
+    fetchSweets();
+    showToast(`Import complete! Success: ${successCount}, Failed: ${failCount}`, successCount > 0 ? 'success' : 'error');
   };
 
   const buildSearchParams = () => {
@@ -503,6 +581,12 @@ const Dashboard = ({ role, showToast }) => {
         {/* Admin Add Button */}
         {role === 'admin' && (
           <div className="admin-actions">
+            <button className="btn-export" onClick={exportToCSV} title="Export to CSV">
+              📥 Export
+            </button>
+            <button className="btn-import" onClick={() => setIsBulkImportOpen(true)} title="Bulk Import">
+              📤 Bulk Import
+            </button>
             <button className="btn-add" onClick={openAddModal}>
               <span>+</span> Add New Sweet
             </button>
@@ -780,6 +864,81 @@ const Dashboard = ({ role, showToast }) => {
         title="Delete Sweet?"
         message="Are you sure you want to delete this sweet? This action cannot be undone."
       />
+
+      {/* Bulk Import Modal */}
+      <Modal 
+        isOpen={isBulkImportOpen} 
+        onClose={() => { setIsBulkImportOpen(false); setImportData([]); }}
+        title="📤 Bulk Import Sweets"
+      >
+        <div className="bulk-import-container">
+          <div className="import-instructions">
+            <p>Upload a CSV file with columns: Name, Category, Price, Quantity</p>
+            <button className="btn-sample" onClick={downloadSampleCSV}>
+              📄 Download Sample Format
+            </button>
+          </div>
+          
+          <div className="file-upload-section">
+            <label htmlFor="bulk-file-upload" className="file-upload-label">
+              📁 Choose CSV File
+            </label>
+            <input 
+              type="file" 
+              id="bulk-file-upload"
+              accept=".csv"
+              onChange={handleFileUpload}
+              className="file-input"
+            />
+          </div>
+
+          {importData.length > 0 && (
+            <>
+              <div className="import-preview">
+                <h4>Preview ({importData.length} items)</h4>
+                <div className="import-table-container">
+                  <table className="import-table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {importData.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.name}</td>
+                          <td>{item.category}</td>
+                          <td>₹{item.price}</td>
+                          <td>{item.quantity}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button 
+                  className="btn-secondary" 
+                  onClick={() => { setIsBulkImportOpen(false); setImportData([]); }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="btn-primary" 
+                  onClick={handleBulkImport}
+                  disabled={isImporting}
+                >
+                  {isImporting ? 'Importing...' : `Import ${importData.length} Items`}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };
