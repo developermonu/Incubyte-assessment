@@ -467,10 +467,54 @@ body {
    ADMIN ACTIONS
    ======================================== */
 
+/* Dashboard Controls */
+.dashboard-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--white);
+  padding: 0.25rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.view-btn {
+  background: transparent;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-btn:hover {
+  background: var(--light-gray);
+  color: var(--text-primary);
+}
+
+.view-btn.active {
+  background: var(--gradient-primary);
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+}
+
 .admin-actions {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 2rem;
 }
 
 .btn-add {
@@ -562,6 +606,62 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
   margin-top: 2rem;
+}
+
+/* List View */
+.sweets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.sweets-list .sweet-card {
+  display: grid;
+  grid-template-columns: 180px 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.5rem;
+}
+
+.sweets-list .sweet-image {
+  width: 180px;
+  height: 180px;
+  margin: 0;
+}
+
+.sweets-list .sweet-header {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin: 0;
+}
+
+.sweets-list .sweet-name {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.sweets-list .sweet-category {
+  position: static;
+  transform: none;
+}
+
+.sweets-list .sweet-price {
+  flex-direction: row;
+  gap: 0.5rem;
+  padding: 0;
+  background: transparent;
+}
+
+.sweets-list .sweet-stock {
+  margin: 0;
+}
+
+.sweets-list .sweet-actions {
+  flex-direction: row;
+  gap: 0.75rem;
 }
 
 .sweet-card {
@@ -1211,6 +1311,16 @@ body {
   .sweets-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  .sweets-list .sweet-card {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .sweets-list .sweet-image {
+    width: 100%;
+    height: 200px;
   }
 
   .sweet-card {

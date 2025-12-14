@@ -237,6 +237,7 @@ const Dashboard = ({ role, showToast }) => {
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, sweetId: null });
   const [purchaseDialog, setPurchaseDialog] = useState({ isOpen: false, sweet: null, quantity: 1 });
   const [restockDialog, setRestockDialog] = useState({ isOpen: false, sweet: null, quantity: 5 });
+  const [viewMode, setViewMode] = useState('grid');
 
   const fetchSweets = async () => {
     setLoading(true);
@@ -401,12 +402,16 @@ const Dashboard = ({ role, showToast }) => {
               onChange={(e) => setSearch({ ...search, name: e.target.value })} 
               className="search-input"
             />
-            <input 
-              placeholder="Category" 
+            <select
               value={search.category} 
               onChange={(e) => setSearch({ ...search, category: e.target.value })} 
               className="search-input"
-            />
+            >
+              <option value="">All Categories</option>
+              <option value="Traditional">Traditional</option>
+              <option value="Modern">Modern</option>
+              <option value="Premium">Premium</option>
+            </select>
             <input 
               placeholder="Min price" 
               type="number" 
@@ -430,14 +435,34 @@ const Dashboard = ({ role, showToast }) => {
         </form>
       </div>
 
-      {/* Admin Add Button */}
-      {role === 'admin' && (
-        <div className="admin-actions">
-          <button className="btn-add" onClick={openAddModal}>
-            <span>+</span> Add New Sweet
+      {/* View Toggle and Admin Actions */}
+      <div className="dashboard-controls">
+        <div className="view-toggle">
+          <button 
+            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+            onClick={() => setViewMode('grid')}
+            title="Grid View"
+          >
+            ⊞ Grid
+          </button>
+          <button 
+            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+            onClick={() => setViewMode('list')}
+            title="List View"
+          >
+            ☰ List
           </button>
         </div>
-      )}
+        
+        {/* Admin Add Button */}
+        {role === 'admin' && (
+          <div className="admin-actions">
+            <button className="btn-add" onClick={openAddModal}>
+              <span>+</span> Add New Sweet
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Loading State */}
       {loading ? (
@@ -456,8 +481,8 @@ const Dashboard = ({ role, showToast }) => {
           )}
         </div>
       ) : (
-        /* Sweets Grid */
-        <div className="sweets-grid">
+        /* Sweets Grid or List */
+        <div className={viewMode === 'grid' ? 'sweets-grid' : 'sweets-list'}>
           {sweets.map((sweet) => (
             <div key={sweet.id} className="sweet-card">
               {sweet.image_url && (
@@ -579,12 +604,16 @@ const Dashboard = ({ role, showToast }) => {
           </div>
           <div className="form-group">
             <label>Category</label>
-            <input 
-              placeholder="e.g., Traditional" 
+            <select
               value={form.category} 
               onChange={(e) => setForm({ ...form, category: e.target.value })} 
               required 
-            />
+            >
+              <option value="">Select Category</option>
+              <option value="Traditional">Traditional</option>
+              <option value="Modern">Modern</option>
+              <option value="Premium">Premium</option>
+            </select>
           </div>
           <div className="form-row">
             <div className="form-group">

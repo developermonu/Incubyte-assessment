@@ -63,6 +63,90 @@ def seed_initial_data() -> None:
                 "quantity": 15,
                 "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23654321' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🍫%3C/text%3E%3C/svg%3E"
             },
+            {
+                "name": "Rasgulla",
+                "category": "Traditional",
+                "price": 4.5,
+                "quantity": 25,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23FFFACD' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23333'%3E⚪%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Jalebi",
+                "category": "Traditional",
+                "price": 3.5,
+                "quantity": 40,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23FFA500' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🌀%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Barfi",
+                "category": "Traditional",
+                "price": 7.0,
+                "quantity": 18,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23F0E68C' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23333'%3E🟨%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Ladoo",
+                "category": "Traditional",
+                "price": 6.0,
+                "quantity": 35,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23DEB887' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🟤%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Strawberry Cake",
+                "category": "Modern",
+                "price": 12.0,
+                "quantity": 8,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23FF69B4' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🍰%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Vanilla Cupcake",
+                "category": "Modern",
+                "price": 3.0,
+                "quantity": 50,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23FFDAB9' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23333'%3E🧁%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Brownie Bites",
+                "category": "Modern",
+                "price": 5.5,
+                "quantity": 22,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%234B3621' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🟫%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Macarons",
+                "category": "Premium",
+                "price": 15.0,
+                "quantity": 12,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23DDA0DD' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🍪%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Truffle Chocolates",
+                "category": "Premium",
+                "price": 18.0,
+                "quantity": 10,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%233D2817' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🍬%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Cheesecake Slice",
+                "category": "Premium",
+                "price": 9.0,
+                "quantity": 14,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23FFFACD' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23333'%3E🍮%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Donut",
+                "category": "Modern",
+                "price": 2.5,
+                "quantity": 45,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23FF6347' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🍩%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Peda",
+                "category": "Traditional",
+                "price": 4.0,
+                "quantity": 28,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23D2691E' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🟠%3C/text%3E%3C/svg%3E"
+            },
         ]
         for item in sample_sweets:
             exists = db.query(models.Sweet).filter(models.Sweet.name == item["name"]).first()
