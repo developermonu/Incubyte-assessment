@@ -33,9 +33,12 @@ A minimal FastAPI + React implementation to manage sweets, inventory, and authen
 cd e:\Placements\Incubytes 3
 docker compose up --build
 ```
-- Backend available at `http://localhost:8000`
+- Backend available at `http://localhost:8001`
 - Frontend available at `http://localhost:5173`
 - PostgreSQL persisted via named volume
+
+## API Endpoints
+![API Endpoints](screenshots/api_endpoints.png)
 
 ## Sample Credentials
 | Role  | Email               | Password   |
