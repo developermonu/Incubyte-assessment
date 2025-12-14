@@ -2,6 +2,60 @@ import { useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import api from './api';
 
+// Toast Notification Component
+const Toast = ({ message, type, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className={`toast toast-${type}`}>
+      <span className="toast-icon">
+        {type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}
+      </span>
+      <span className="toast-message">{message}</span>
+      <button className="toast-close" onClick={onClose}>×</button>
+    </div>
+  );
+};
+
+// Modal Component
+const Modal = ({ isOpen, onClose, title, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>{title}</h3>
+          <button className="modal-close" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body">{children}</div>
+      </div>
+    </div>
+  );
+};
+
+// Confirmation Dialog Component
+const ConfirmDialog = ({ isOpen, onClose, onConfirm, title, message }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content confirm-dialog" onClick={(e) => e.stopPropagation()}>
+        <div className="confirm-icon">⚠️</div>
+        <h3>{title}</h3>
+        <p>{message}</p>
+        <div className="confirm-actions">
+          <button className="btn-secondary" onClick={onClose}>Cancel</button>
+          <button className="btn-danger" onClick={onConfirm}>Confirm</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const RequireAuth = ({ token, children }) => {
   if (!token) {
     return <Navigate to="/login" replace />;
@@ -9,103 +63,179 @@ const RequireAuth = ({ token, children }) => {
   return children;
 };
 
-const Login = ({ onAuth }) => {
+const Login = ({ onAuth, showToast }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       const { data } = await api.post('/api/auth/login', { email, password });
       onAuth(data.access_token, data.role);
+      showToast('Welcome back! 🎉', 'success');
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.detail || 'Unable to login');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="card" style={{ maxWidth: '450px', margin: '0 auto' }}>
-      <h2>🍬 Welcome Back!</h2>
-      <p style={{ color: '#718096', marginBottom: '1.5rem' }}>Sign in to manage your sweet shop</p>
-      {error && <div className="error">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>📧 Email Address</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@example.com" required />
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <div className="auth-icon">🍬</div>
+          <h2>Welcome Back!</h2>
+          <p>Sign in to manage your sweet shop</p>
         </div>
-        <div>
-          <label>🔒 Password</label>
-          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Enter your password" required />
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label>
+              <span className="input-icon">📧</span>
+              Email Address
+            </label>
+            <input 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              type="email" 
+              placeholder="you@example.com" 
+              required 
+            />
+          </div>
+          <div className="form-group">
+            <label>
+              <span className="input-icon">🔒</span>
+              Password
+            </label>
+            <input 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              type="password" 
+              placeholder="Enter your password" 
+              required 
+            />
+          </div>
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? (
+              <><span className="spinner"></span> Signing in...</>
+            ) : (
+              'Sign In'
+            )}
+          </button>
+        </form>
+        <div className="auth-footer">
+          Need an account? <Link to="/register">Create one here</Link>
         </div>
-        <button type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>🚀 Sign In</button>
-      </form>
-      <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#718096' }}>
-        Need an account? <Link to="/register" style={{ color: '#667eea', fontWeight: 600 }}>Create one here</Link>
-      </p>
+      </div>
     </div>
   );
 };
 
-const Register = ({ onAuth }) => {
+const Register = ({ onAuth, showToast }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('user');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       const { data } = await api.post('/api/auth/register', { email, password, role });
       onAuth(data.access_token, data.role);
+      showToast('Account created successfully! 🎉', 'success');
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.detail || 'Unable to register');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="card" style={{ maxWidth: '450px', margin: '0 auto' }}>
-      <h2>✨ Create Account</h2>
-      <p style={{ color: '#718096', marginBottom: '1.5rem' }}>Join our sweet shop community</p>
-      {error && <div className="error">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>📧 Email Address</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@example.com" required />
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <div className="auth-icon">✨</div>
+          <h2>Create Account</h2>
+          <p>Join our sweet shop community</p>
         </div>
-        <div>
-          <label>🔒 Password</label>
-          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Minimum 6 characters" minLength={6} required />
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label>
+              <span className="input-icon">📧</span>
+              Email Address
+            </label>
+            <input 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              type="email" 
+              placeholder="you@example.com" 
+              required 
+            />
+          </div>
+          <div className="form-group">
+            <label>
+              <span className="input-icon">🔒</span>
+              Password
+            </label>
+            <input 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              type="password" 
+              placeholder="Minimum 6 characters" 
+              minLength={6} 
+              required 
+            />
+          </div>
+          <div className="form-group">
+            <label>
+              <span className="input-icon">👤</span>
+              Account Type
+            </label>
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="user">🛒 Customer</option>
+              <option value="admin">👑 Admin</option>
+            </select>
+          </div>
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? (
+              <><span className="spinner"></span> Creating account...</>
+            ) : (
+              'Create Account'
+            )}
+          </button>
+        </form>
+        <div className="auth-footer">
+          Already have an account? <Link to="/login">Sign in here</Link>
         </div>
-        <div>
-          <label>👤 Account Type</label>
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="user">🛒 Customer</option>
-            <option value="admin">👑 Admin</option>
-          </select>
-        </div>
-        <button type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>🎉 Create Account</button>
-      </form>
-      <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#718096' }}>
-        Already have an account? <Link to="/login" style={{ color: '#667eea', fontWeight: 600 }}>Sign in here</Link>
-      </p>
+      </div>
     </div>
   );
 };
 
-const Dashboard = ({ role }) => {
+const Dashboard = ({ role, showToast }) => {
   const [sweets, setSweets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState({ name: '', category: '', minPrice: '', maxPrice: '' });
   const [form, setForm] = useState({ name: '', category: '', price: '', quantity: '' });
   const [editingId, setEditingId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, sweetId: null });
+  const [purchaseDialog, setPurchaseDialog] = useState({ isOpen: false, sweet: null, quantity: 1 });
+  const [restockDialog, setRestockDialog] = useState({ isOpen: false, sweet: null, quantity: 5 });
 
   const fetchSweets = async () => {
     setLoading(true);
@@ -165,13 +295,17 @@ const Dashboard = ({ role }) => {
     try {
       if (editingId) {
         await api.put(`/api/sweets/${editingId}`, payload);
+        showToast('Sweet updated successfully! ✨', 'success');
       } else {
         await api.post('/api/sweets', payload);
+        showToast('Sweet created successfully! 🎉', 'success');
       }
       await fetchSweets();
       resetForm();
+      setIsModalOpen(false);
     } catch (err) {
       setError(err.response?.data?.detail || 'Save failed');
+      showToast(err.response?.data?.detail || 'Save failed', 'error');
     }
   };
 
@@ -183,108 +317,183 @@ const Dashboard = ({ role }) => {
       price: sweet.price,
       quantity: sweet.quantity
     });
+    setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete sweet?')) return;
+  const handleDelete = async () => {
     try {
-      await api.delete(`/api/sweets/${id}`);
+      await api.delete(`/api/sweets/${confirmDialog.sweetId}`);
       await fetchSweets();
+      showToast('Sweet deleted successfully! 🗑️', 'success');
+      setConfirmDialog({ isOpen: false, sweetId: null });
     } catch (err) {
       setError(err.response?.data?.detail || 'Delete failed');
+      showToast(err.response?.data?.detail || 'Delete failed', 'error');
     }
   };
 
-  const handlePurchase = async (sweet) => {
-    const quantity = Number(prompt('Purchase quantity', '1'));
-    if (!quantity) return;
+  const handlePurchase = async () => {
     try {
-      await api.post(`/api/sweets/${sweet.id}/purchase`, { quantity });
+      await api.post(`/api/sweets/${purchaseDialog.sweet.id}/purchase`, { 
+        quantity: Number(purchaseDialog.quantity) 
+      });
       await fetchSweets();
+      showToast(`Purchased ${purchaseDialog.quantity}x ${purchaseDialog.sweet.name}! 🛒`, 'success');
+      setPurchaseDialog({ isOpen: false, sweet: null, quantity: 1 });
     } catch (err) {
-      setError(err.response?.data?.detail || 'Purchase failed');
+      showToast(err.response?.data?.detail || 'Purchase failed', 'error');
     }
   };
 
-  const handleRestock = async (sweet) => {
-    const quantity = Number(prompt('Restock quantity', '5'));
-    if (!quantity) return;
+  const handleRestock = async () => {
     try {
-      await api.post(`/api/sweets/${sweet.id}/restock`, { quantity });
+      await api.post(`/api/sweets/${restockDialog.sweet.id}/restock`, { 
+        quantity: Number(restockDialog.quantity) 
+      });
       await fetchSweets();
+      showToast(`Restocked ${restockDialog.quantity}x ${restockDialog.sweet.name}! 📦`, 'success');
+      setRestockDialog({ isOpen: false, sweet: null, quantity: 5 });
     } catch (err) {
-      setError(err.response?.data?.detail || 'Restock failed');
+      showToast(err.response?.data?.detail || 'Restock failed', 'error');
     }
+  };
+
+  const openAddModal = () => {
+    resetForm();
+    setIsModalOpen(true);
   };
 
   return (
     <div className="dashboard">
-      <h2>🍬 Sweet Shop Dashboard</h2>
-      {error && <div className="error">⚠️ {error}</div>}
+      {/* Search Bar */}
+      <div className="search-section">
+        <h2 className="section-title">
+          <span className="title-icon">🔍</span>
+          Find Your Sweets
+        </h2>
+        <form className="search-form" onSubmit={handleSearch}>
+          <div className="search-grid">
+            <input 
+              placeholder="Search by name..." 
+              value={search.name} 
+              onChange={(e) => setSearch({ ...search, name: e.target.value })} 
+              className="search-input"
+            />
+            <input 
+              placeholder="Category" 
+              value={search.category} 
+              onChange={(e) => setSearch({ ...search, category: e.target.value })} 
+              className="search-input"
+            />
+            <input 
+              placeholder="Min price" 
+              type="number" 
+              step="0.01" 
+              value={search.minPrice} 
+              onChange={(e) => setSearch({ ...search, minPrice: e.target.value })} 
+              className="search-input"
+            />
+            <input 
+              placeholder="Max price" 
+              type="number" 
+              step="0.01" 
+              value={search.maxPrice} 
+              onChange={(e) => setSearch({ ...search, maxPrice: e.target.value })} 
+              className="search-input"
+            />
+          </div>
+          <button type="submit" className="btn-search">
+            <span>🔎</span> Search
+          </button>
+        </form>
+      </div>
 
-      <form className="search" onSubmit={handleSearch}>
-        <input placeholder="🔍 Search by name..." value={search.name} onChange={(e) => setSearch({ ...search, name: e.target.value })} />
-        <input placeholder="📁 Category" value={search.category} onChange={(e) => setSearch({ ...search, category: e.target.value })} />
-        <input placeholder="💰 Min price" type="number" step="0.01" value={search.minPrice} onChange={(e) => setSearch({ ...search, minPrice: e.target.value })} />
-        <input placeholder="💵 Max price" type="number" step="0.01" value={search.maxPrice} onChange={(e) => setSearch({ ...search, maxPrice: e.target.value })} />
-        <button type="submit">🔎 Search</button>
-      </form>
-
+      {/* Admin Add Button */}
       {role === 'admin' && (
-        <div className="card">
-          <h3>{editingId ? '✏️ Edit Sweet' : '➕ Add New Sweet'}</h3>
-          <form onSubmit={handleSubmit} className="form-grid">
-            <div>
-              <label>Sweet Name</label>
-              <input placeholder="e.g., Kaju Katli" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-            </div>
-            <div>
-              <label>Category</label>
-              <input placeholder="e.g., Traditional" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required />
-            </div>
-            <div>
-              <label>Price ($)</label>
-              <input placeholder="0.00" type="number" step="0.01" min="0" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
-            </div>
-            <div>
-              <label>Quantity</label>
-              <input placeholder="0" type="number" min="0" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} required />
-            </div>
-            <button type="submit">{editingId ? '💾 Update Sweet' : '✨ Create Sweet'}</button>
-            {editingId && (
-              <button type="button" onClick={resetForm} className="secondary">
-                ❌ Cancel
-              </button>
-            )}
-          </form>
+        <div className="admin-actions">
+          <button className="btn-add" onClick={openAddModal}>
+            <span>+</span> Add New Sweet
+          </button>
         </div>
       )}
 
+      {/* Loading State */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', fontSize: '1.2rem', color: '#667eea' }}>
-          ⏳ Loading delicious sweets...
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading delicious sweets...</p>
+        </div>
+      ) : sweets.length === 0 ? (
+        /* Empty State */
+        <div className="empty-state">
+          <div className="empty-icon">🍭</div>
+          <h3>No sweets found</h3>
+          <p>Try adjusting your search filters or add some sweets!</p>
+          {role === 'admin' && (
+            <button className="btn-primary" onClick={openAddModal}>Add Your First Sweet</button>
+          )}
         </div>
       ) : (
+        /* Sweets Grid */
         <div className="sweets-grid">
           {sweets.map((sweet) => (
             <div key={sweet.id} className="sweet-card">
-              <h3>{sweet.name}</h3>
-              <span className="category">{sweet.category}</span>
-              <div className="price">${sweet.price.toFixed(2)}</div>
-              <div className={`quantity ${sweet.quantity < 5 ? 'low-stock' : ''}`}>
-                📦 Stock: {sweet.quantity} {sweet.quantity < 5 && sweet.quantity > 0 && '(Low!)'}
-                {sweet.quantity === 0 && '(Out of Stock)'}
+              <div className="sweet-header">
+                <h3 className="sweet-name">{sweet.name}</h3>
+                <span className="sweet-category">{sweet.category}</span>
               </div>
-              <div className="actions">
-                <button disabled={sweet.quantity === 0} onClick={() => handlePurchase(sweet)}>
-                  🛒 Purchase
-                </button>
+              
+              <div className="sweet-price">
+                <span className="price-label">Price</span>
+                <span className="price-value">${sweet.price.toFixed(2)}</span>
+              </div>
+              
+              <div className="sweet-stock">
+                <span className="stock-icon">📦</span>
+                <span className={`stock-value ${
+                  sweet.quantity === 0 ? 'out-of-stock' : 
+                  sweet.quantity < 5 ? 'low-stock' : 'in-stock'
+                }`}>
+                  {sweet.quantity === 0 ? 'Out of Stock' : 
+                   sweet.quantity < 5 ? `Only ${sweet.quantity} left!` : 
+                   `${sweet.quantity} in stock`}
+                </span>
+              </div>
+              
+              <div className="sweet-actions">
+                {role === 'user' && (
+                  <button 
+                    className="btn-purchase" 
+                    disabled={sweet.quantity === 0}
+                    onClick={() => setPurchaseDialog({ isOpen: true, sweet, quantity: 1 })}
+                    title={sweet.quantity === 0 ? 'Out of stock' : 'Purchase this sweet'}
+                  >
+                    <span>🛒</span> Purchase
+                  </button>
+                )}
+                
                 {role === 'admin' && (
                   <>
-                    <button onClick={() => handleEdit(sweet)}>✏️ Edit</button>
-                    <button onClick={() => handleRestock(sweet)}>📦 Restock</button>
-                    <button className="danger" onClick={() => handleDelete(sweet.id)}>
-                      🗑️ Delete
+                    <button 
+                      className="btn-icon btn-edit" 
+                      onClick={() => handleEdit(sweet)}
+                      title="Edit sweet"
+                    >
+                      ✏️
+                    </button>
+                    <button 
+                      className="btn-icon btn-restock" 
+                      onClick={() => setRestockDialog({ isOpen: true, sweet, quantity: 5 })}
+                      title="Restock sweet"
+                    >
+                      📦
+                    </button>
+                    <button 
+                      className="btn-icon btn-delete" 
+                      onClick={() => setConfirmDialog({ isOpen: true, sweetId: sweet.id })}
+                      title="Delete sweet"
+                    >
+                      🗑️
                     </button>
                   </>
                 )}
@@ -294,13 +503,150 @@ const Dashboard = ({ role }) => {
         </div>
       )}
 
-      {!loading && sweets.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#718096' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🍭</div>
-          <h3>No sweets found</h3>
-          <p>Try adjusting your search filters or add some sweets!</p>
-        </div>
-      )}
+      {/* Admin Form Modal */}
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => { setIsModalOpen(false); resetForm(); }}
+        title={editingId ? '✏️ Edit Sweet' : '✨ Add New Sweet'}
+      >
+        <form onSubmit={handleSubmit} className="modal-form">
+          <div className="form-group">
+            <label>Sweet Name</label>
+            <input 
+              placeholder="e.g., Kaju Katli" 
+              value={form.name} 
+              onChange={(e) => setForm({ ...form, name: e.target.value })} 
+              required 
+            />
+          </div>
+          <div className="form-group">
+            <label>Category</label>
+            <input 
+              placeholder="e.g., Traditional" 
+              value={form.category} 
+              onChange={(e) => setForm({ ...form, category: e.target.value })} 
+              required 
+            />
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Price ($)</label>
+              <input 
+                placeholder="0.00" 
+                type="number" 
+                step="0.01" 
+                min="0" 
+                value={form.price} 
+                onChange={(e) => setForm({ ...form, price: e.target.value })} 
+                required 
+              />
+            </div>
+            <div className="form-group">
+              <label>Quantity</label>
+              <input 
+                placeholder="0" 
+                type="number" 
+                min="0" 
+                value={form.quantity} 
+                onChange={(e) => setForm({ ...form, quantity: e.target.value })} 
+                required 
+              />
+            </div>
+          </div>
+          <div className="modal-actions">
+            <button type="button" className="btn-secondary" onClick={() => { setIsModalOpen(false); resetForm(); }}>
+              Cancel
+            </button>
+            <button type="submit" className="btn-primary">
+              {editingId ? 'Update Sweet' : 'Create Sweet'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Purchase Dialog */}
+      <Modal
+        isOpen={purchaseDialog.isOpen}
+        onClose={() => setPurchaseDialog({ isOpen: false, sweet: null, quantity: 1 })}
+        title="🛒 Purchase Sweet"
+      >
+        {purchaseDialog.sweet && (
+          <div className="purchase-dialog">
+            <p className="purchase-sweet-name">{purchaseDialog.sweet.name}</p>
+            <p className="purchase-info">Price: ${purchaseDialog.sweet.price.toFixed(2)} each</p>
+            <div className="form-group">
+              <label>Quantity</label>
+              <input
+                type="number"
+                min="1"
+                max={purchaseDialog.sweet.quantity}
+                value={purchaseDialog.quantity}
+                onChange={(e) => setPurchaseDialog({ ...purchaseDialog, quantity: e.target.value })}
+              />
+            </div>
+            <div className="purchase-total">
+              Total: ${(purchaseDialog.sweet.price * purchaseDialog.quantity).toFixed(2)}
+            </div>
+            <div className="modal-actions">
+              <button 
+                className="btn-secondary" 
+                onClick={() => setPurchaseDialog({ isOpen: false, sweet: null, quantity: 1 })}
+              >
+                Cancel
+              </button>
+              <button className="btn-primary" onClick={handlePurchase}>
+                Confirm Purchase
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Restock Dialog */}
+      <Modal
+        isOpen={restockDialog.isOpen}
+        onClose={() => setRestockDialog({ isOpen: false, sweet: null, quantity: 5 })}
+        title="📦 Restock Sweet"
+      >
+        {restockDialog.sweet && (
+          <div className="restock-dialog">
+            <p className="restock-sweet-name">{restockDialog.sweet.name}</p>
+            <p className="restock-info">Current stock: {restockDialog.sweet.quantity}</p>
+            <div className="form-group">
+              <label>Add Quantity</label>
+              <input
+                type="number"
+                min="1"
+                value={restockDialog.quantity}
+                onChange={(e) => setRestockDialog({ ...restockDialog, quantity: e.target.value })}
+              />
+            </div>
+            <div className="restock-preview">
+              New stock will be: {Number(restockDialog.sweet.quantity) + Number(restockDialog.quantity)}
+            </div>
+            <div className="modal-actions">
+              <button 
+                className="btn-secondary" 
+                onClick={() => setRestockDialog({ isOpen: false, sweet: null, quantity: 5 })}
+              >
+                Cancel
+              </button>
+              <button className="btn-primary" onClick={handleRestock}>
+                Confirm Restock
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, sweetId: null })}
+        onConfirm={handleDelete}
+        title="Delete Sweet?"
+        message="Are you sure you want to delete this sweet? This action cannot be undone."
+      />
     </div>
   );
 };
@@ -308,6 +654,7 @@ const Dashboard = ({ role }) => {
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [role, setRole] = useState(localStorage.getItem('role'));
+  const [toast, setToast] = useState(null);
 
   const handleAuth = (jwt, userRole) => {
     localStorage.setItem('token', jwt);
@@ -321,45 +668,68 @@ const App = () => {
     localStorage.removeItem('role');
     setToken(null);
     setRole(null);
+    showToast('Logged out successfully! 👋', 'info');
+  };
+
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type });
+  };
+
+  const closeToast = () => {
+    setToast(null);
   };
 
   return (
     <div className="app-shell">
-      <header>
-        <h1>🍬 Sweet Shop</h1>
-        <nav>
+      {/* Navigation Header */}
+      <header className="navbar">
+        <div className="navbar-brand">
+          <span className="brand-icon">🍬</span>
+          <span className="brand-name">Sweet Shop</span>
+        </div>
+        <nav className="navbar-nav">
           {token ? (
             <>
-              <Link to="/dashboard">📊 Dashboard</Link>
-              <span style={{ color: '#cbd5e0', fontSize: '0.9rem', padding: '0 0.5rem' }}>
+              <Link to="/dashboard" className="nav-link">
+                <span>📊</span> Dashboard
+              </Link>
+              <span className={`user-badge ${role === 'admin' ? 'badge-admin' : 'badge-user'}`}>
                 {role === 'admin' ? '👑 Admin' : '👤 Customer'}
               </span>
-              <button onClick={handleLogout}>🚪 Logout</button>
+              <button onClick={handleLogout} className="btn-logout">
+                <span>🚪</span> Logout
+              </button>
             </>
           ) : (
             <>
-              <Link to="/login">🔑 Login</Link>
-              <Link to="/register">✨ Register</Link>
+              <Link to="/login" className="nav-link">🔑 Login</Link>
+              <Link to="/register" className="nav-link">✨ Register</Link>
             </>
           )}
         </nav>
       </header>
 
-      <main>
+      {/* Main Content */}
+      <main className="main-content">
         <Routes>
           <Route path="/" element={<Navigate to={token ? '/dashboard' : '/login'} replace />} />
-          <Route path="/login" element={<Login onAuth={handleAuth} />} />
-          <Route path="/register" element={<Register onAuth={handleAuth} />} />
+          <Route path="/login" element={<Login onAuth={handleAuth} showToast={showToast} />} />
+          <Route path="/register" element={<Register onAuth={handleAuth} showToast={showToast} />} />
           <Route
             path="/dashboard"
             element={
               <RequireAuth token={token}>
-                <Dashboard role={role || 'user'} />
+                <Dashboard role={role || 'user'} showToast={showToast} />
               </RequireAuth>
             }
           />
         </Routes>
       </main>
+
+      {/* Toast Notifications */}
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={closeToast} />
+      )}
     </div>
   );
 };
