@@ -238,6 +238,7 @@ const Dashboard = ({ role, showToast }) => {
   const [purchaseDialog, setPurchaseDialog] = useState({ isOpen: false, sweet: null, quantity: 1 });
   const [restockDialog, setRestockDialog] = useState({ isOpen: false, sweet: null, quantity: 5 });
   const [viewMode, setViewMode] = useState('grid');
+  const [sortBy, setSortBy] = useState('name-asc');
 
   const fetchSweets = async () => {
     setLoading(true);
@@ -254,6 +255,30 @@ const Dashboard = ({ role, showToast }) => {
   useEffect(() => {
     fetchSweets();
   }, []);
+
+  const sortSweets = (sweetsArray) => {
+    const sorted = [...sweetsArray];
+    switch (sortBy) {
+      case 'name-asc':
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      case 'name-desc':
+        return sorted.sort((a, b) => b.name.localeCompare(a.name));
+      case 'price-asc':
+        return sorted.sort((a, b) => a.price - b.price);
+      case 'price-desc':
+        return sorted.sort((a, b) => b.price - a.price);
+      case 'quantity-asc':
+        return sorted.sort((a, b) => a.quantity - b.quantity);
+      case 'quantity-desc':
+        return sorted.sort((a, b) => b.quantity - a.quantity);
+      case 'category-asc':
+        return sorted.sort((a, b) => a.category.localeCompare(b.category));
+      case 'category-desc':
+        return sorted.sort((a, b) => b.category.localeCompare(a.category));
+      default:
+        return sorted;
+    }
+  };
 
   const buildSearchParams = () => {
     const params = new URLSearchParams();
@@ -435,23 +460,44 @@ const Dashboard = ({ role, showToast }) => {
         </form>
       </div>
 
-      {/* View Toggle and Admin Actions */}
+      {/* View Toggle, Sort Options and Admin Actions */}
       <div className="dashboard-controls">
-        <div className="view-toggle">
-          <button 
-            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-            onClick={() => setViewMode('grid')}
-            title="Grid View"
-          >
-            ⊞ Grid
-          </button>
-          <button 
-            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
-            onClick={() => setViewMode('list')}
-            title="List View"
-          >
-            ☰ List
-          </button>
+        <div className="controls-left">
+          <div className="view-toggle">
+            <button 
+              className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => setViewMode('grid')}
+              title="Grid View"
+            >
+              ⊞ Grid
+            </button>
+            <button 
+              className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+              onClick={() => setViewMode('list')}
+              title="List View"
+            >
+              ☰ List
+            </button>
+          </div>
+          
+          <div className="sort-container">
+            <label htmlFor="sort-select" className="sort-label">📊 Sort by:</label>
+            <select 
+              id="sort-select"
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value)}
+              className="sort-select"
+            >
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+              <option value="price-asc">Price (Low to High)</option>
+              <option value="price-desc">Price (High to Low)</option>
+              <option value="quantity-asc">Stock (Low to High)</option>
+              <option value="quantity-desc">Stock (High to Low)</option>
+              <option value="category-asc">Category (A-Z)</option>
+              <option value="category-desc">Category (Z-A)</option>
+            </select>
+          </div>
         </div>
         
         {/* Admin Add Button */}
@@ -483,7 +529,7 @@ const Dashboard = ({ role, showToast }) => {
       ) : (
         /* Sweets Grid or List */
         <div className={viewMode === 'grid' ? 'sweets-grid' : 'sweets-list'}>
-          {sweets.map((sweet) => (
+          {sortSweets(sweets).map((sweet) => (
             <div key={sweet.id} className="sweet-card">
               {sweet.image_url && (
                 <div className="sweet-image">
