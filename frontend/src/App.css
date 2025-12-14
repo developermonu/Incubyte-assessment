@@ -601,6 +601,29 @@ body {
   border-color: rgba(255, 107, 157, 0.2);
 }
 
+.sweet-image {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background: var(--light-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sweet-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition-normal);
+}
+
+.sweet-card:hover .sweet-image img {
+  transform: scale(1.05);
+}
+
 .sweet-header {
   display: flex;
   flex-direction: column;
@@ -848,6 +871,81 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.image-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.image-preview {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 2px solid var(--gray);
+  margin: 0 auto;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--danger);
+  color: var(--white);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-md);
+}
+
+.remove-image-btn:hover {
+  background: #E53E3E;
+  transform: scale(1.1);
+}
+
+.image-input {
+  display: none;
+}
+
+.image-upload-label {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: var(--gradient-secondary);
+  color: var(--white);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(179, 157, 219, 0.3);
+}
+
+.image-upload-label:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(179, 157, 219, 0.4);
+}
+
+.upload-hint {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
 }
 
 .form-row {

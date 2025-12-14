@@ -230,7 +230,8 @@ const Dashboard = ({ role, showToast }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState({ name: '', category: '', minPrice: '', maxPrice: '' });
-  const [form, setForm] = useState({ name: '', category: '', price: '', quantity: '' });
+  const [form, setForm] = useState({ name: '', category: '', price: '', quantity: '', image_url: '' });
+  const [imagePreview, setImagePreview] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, sweetId: null });
@@ -278,8 +279,26 @@ const Dashboard = ({ role, showToast }) => {
   };
 
   const resetForm = () => {
-    setForm({ name: '', category: '', price: '', quantity: '' });
+    setForm({ name: '', category: '', price: '', quantity: '', image_url: '' });
+    setImagePreview(null);
     setEditingId(null);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Image size should be less than 5MB', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setForm({ ...form, image_url: base64String });
+        setImagePreview(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -289,7 +308,8 @@ const Dashboard = ({ role, showToast }) => {
       name: form.name,
       category: form.category,
       price: Number(form.price),
-      quantity: Number(form.quantity)
+      quantity: Number(form.quantity),
+      image_url: form.image_url || null
     };
 
     try {
@@ -315,8 +335,10 @@ const Dashboard = ({ role, showToast }) => {
       name: sweet.name,
       category: sweet.category,
       price: sweet.price,
-      quantity: sweet.quantity
+      quantity: sweet.quantity,
+      image_url: sweet.image_url || ''
     });
+    setImagePreview(sweet.image_url || null);
     setIsModalOpen(true);
   };
 
@@ -438,6 +460,11 @@ const Dashboard = ({ role, showToast }) => {
         <div className="sweets-grid">
           {sweets.map((sweet) => (
             <div key={sweet.id} className="sweet-card">
+              {sweet.image_url && (
+                <div className="sweet-image">
+                  <img src={sweet.image_url} alt={sweet.name} />
+                </div>
+              )}
               <div className="sweet-header">
                 <h3 className="sweet-name">{sweet.name}</h3>
                 <span className="sweet-category">{sweet.category}</span>
@@ -510,6 +537,37 @@ const Dashboard = ({ role, showToast }) => {
         title={editingId ? '✏️ Edit Sweet' : '✨ Add New Sweet'}
       >
         <form onSubmit={handleSubmit} className="modal-form">
+          <div className="form-group">
+            <label>Sweet Image</label>
+            <div className="image-upload-container">
+              {imagePreview && (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Preview" />
+                  <button 
+                    type="button" 
+                    className="remove-image-btn"
+                    onClick={() => {
+                      setImagePreview(null);
+                      setForm({ ...form, image_url: '' });
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+              <input 
+                type="file" 
+                accept="image/*"
+                onChange={handleImageChange}
+                className="image-input"
+                id="image-upload"
+              />
+              <label htmlFor="image-upload" className="image-upload-label">
+                {imagePreview ? '📷 Change Image' : '📷 Upload Image'}
+              </label>
+              <p className="upload-hint">Max size: 5MB. Supports JPG, PNG, GIF</p>
+            </div>
+          </div>
           <div className="form-group">
             <label>Sweet Name</label>
             <input 

@@ -42,9 +42,27 @@ def seed_initial_data() -> None:
             )
 
         sample_sweets = [
-            {"name": "Kaju Katli", "category": "Traditional", "price": 8.5, "quantity": 20},
-            {"name": "Gulab Jamun", "category": "Traditional", "price": 5.0, "quantity": 30},
-            {"name": "Chocolate Fudge", "category": "Modern", "price": 6.5, "quantity": 15},
+            {
+                "name": "Kaju Katli", 
+                "category": "Traditional", 
+                "price": 8.5, 
+                "quantity": 20,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23FFD700' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🥮%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Gulab Jamun", 
+                "category": "Traditional", 
+                "price": 5.0, 
+                "quantity": 30,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%238B4513' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🍡%3C/text%3E%3C/svg%3E"
+            },
+            {
+                "name": "Chocolate Fudge", 
+                "category": "Modern", 
+                "price": 6.5, 
+                "quantity": 15,
+                "image_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23654321' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='24' text-anchor='middle' dy='.3em' fill='%23fff'%3E🍫%3C/text%3E%3C/svg%3E"
+            },
         ]
         for item in sample_sweets:
             exists = db.query(models.Sweet).filter(models.Sweet.name == item["name"]).first()
@@ -83,6 +101,7 @@ class SweetBase(BaseModel):
     category: str
     price: float
     quantity: int
+    image_url: Optional[str] = None
 
 
 class SweetCreate(SweetBase):
@@ -94,6 +113,7 @@ class SweetUpdate(BaseModel):
     category: Optional[str] = None
     price: Optional[float] = None
     quantity: Optional[int] = None
+    image_url: Optional[str] = None
 
 
 class SweetOut(SweetBase):

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, Text
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -21,3 +21,4 @@ class Sweet(Base):
     category = Column(String, nullable=False)
     price = Column(Float, nullable=False)
     quantity = Column(Integer, nullable=False, default=0)
+    image_url = Column(Text, nullable=True)  # Base64 encoded image or URL
