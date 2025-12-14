@@ -543,7 +543,7 @@ const Dashboard = ({ role, showToast }) => {
               
               <div className="sweet-price">
                 <span className="price-label">Price</span>
-                <span className="price-value">${sweet.price.toFixed(2)}</span>
+                <span className="price-value">₹{sweet.price}</span>
               </div>
               
               <div className="sweet-stock">
@@ -663,11 +663,11 @@ const Dashboard = ({ role, showToast }) => {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>Price ($)</label>
+              <label>Price (₹)</label>
               <input 
-                placeholder="0.00" 
+                placeholder="0" 
                 type="number" 
-                step="0.01" 
+                step="1" 
                 min="0" 
                 value={form.price} 
                 onChange={(e) => setForm({ ...form, price: e.target.value })} 
@@ -706,7 +706,7 @@ const Dashboard = ({ role, showToast }) => {
         {purchaseDialog.sweet && (
           <div className="purchase-dialog">
             <p className="purchase-sweet-name">{purchaseDialog.sweet.name}</p>
-            <p className="purchase-info">Price: ${purchaseDialog.sweet.price.toFixed(2)} each</p>
+            <p className="purchase-info">Price: ₹{purchaseDialog.sweet.price} each</p>
             <div className="form-group">
               <label>Quantity</label>
               <input
@@ -718,7 +718,7 @@ const Dashboard = ({ role, showToast }) => {
               />
             </div>
             <div className="purchase-total">
-              Total: ${(purchaseDialog.sweet.price * purchaseDialog.quantity).toFixed(2)}
+              Total: ₹{purchaseDialog.sweet.price * purchaseDialog.quantity}
             </div>
             <div className="modal-actions">
               <button 
